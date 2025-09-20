@@ -3,7 +3,7 @@ import { GoogleGenAI } from '@google/genai';
 import { v4 as uuidv4 } from 'uuid';
 import dotenv from 'dotenv';
 import cors from 'cors';
-
+ import { translate } from "@vitalets/google-translate-api";
 dotenv.config();
 const app = express();
 app.use(express.json());
@@ -100,6 +100,19 @@ app.post('/answer', async (req, res) => {
     type: decision ? 'result' : 'question',
     content: decision ? decision : assistantText.trim()
   });
+});
+
+
+app.post("/translate", async (req, res) => {
+  const { text, targetLang } = req.body;
+
+  try {
+    const result = await translate(text, { to: targetLang });
+    res.json({ translatedText: result.text });
+  } catch (error) {
+    console.error("Translation failed:", error);
+    res.status(500).json({ error: "Translation failed", details: error.message });
+  }
 });
 
 const PORT = process.env.PORT || 4000;
